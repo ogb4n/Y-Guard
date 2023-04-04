@@ -7,6 +7,8 @@ from pathlib import Path
 def restart_bot():
     os.execv(sys.executable, ['python'] + sys.argv)
 
+dev = 1092392902442893352
+
 class tools(commands.Cog):
     """Outils et fontionnalités"""
 
@@ -19,6 +21,7 @@ class tools(commands.Cog):
         await ctx.send(time.ctime())
 
     @commands.command(aliases=['reboot'])
+    @commands.has_any_role(dev)
     async def restart (self, ctx):
         """Redémarre le bot"""
         embedDeco=discord.Embed(title="⚗️ Y-Guard Status.. 🛠️ ", description="""Y-Guard redémarre...
@@ -26,15 +29,8 @@ class tools(commands.Cog):
         await ctx.send(embed=embedDeco)
         restart_bot()
 
-    @commands.command(name="load")
-    @commands.has_any_role(1092392902442893352)
-    async def load(self, ctx, extension):
-        """Permet de charger les modules"""
-        bot.load_extension(f'cogs.{extension}')
-        print('Cog chargés')
-
     @commands.command(aliases=['purge'])                                 
-    @commands.has_any_role(1092392902442893352)
+    @commands.has_any_role(dev)
     async def clear(self, ctx, amount=0):
         """Permet de nettoyer un salon <cmd number> """
         await ctx.channel.purge(limit= amount+1)

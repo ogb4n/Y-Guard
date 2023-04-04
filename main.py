@@ -19,7 +19,7 @@ bot = commands.Bot(command_prefix= '.', intents=intents)
 @bot.remove_command('help')
 
 # =========================================================
-# ===================== Bot Behaviour =====================
+# ===================== BOT BEHAVIOUR =====================
 # =========================================================
 
 @bot.event
@@ -55,18 +55,29 @@ async def on_voice_state_update(member, before, after):
             for guild in bot.guilds:
                 maincategory = discord.utils.get(
                     guild.categories, id=1092394010955497503)
-                channel2 = await guild.create_voice_channel(name=f'📎 room de  {member.display_name} ', category=maincategory, user_limit=5)
+                channel2 = await guild.create_voice_channel(name=f'📎 {member.display_name} ', category=maincategory, user_limit=5)
                 await channel2.set_permissions(member, connect=True, mute_members=True, manage_channels=True)
                 await member.move_to(channel2)
-                print("un channel temporaire à été créé pour : {member.display_name}")
+                print(f"un channel temporaire à été créé pour : {member.display_name}")
 
                 def check(x, y, z):
                     return len(channel2.members) == 0
                 await bot.wait_for('voice_state_update', check=check)
                 await channel2.delete()
+                print(f"Le channel de {member.display_name} a été supprimé ")
 
+
+# =========================================================
+# ================== BOT MAIN COMMANDS ====================
+# =========================================================
+
+    @commands.command(name="load")
+    @commands.has_any_role(1092392902442893352)
+    async def load(self, ctx, extension):
+        """Permet de charger les modules"""
+        bot.load_extension(f'cogs.{extension}')
+        print('Cog chargés')
 
 
 token = os.getenv("TOKEN")
-        
 bot.run(token)
