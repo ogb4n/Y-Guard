@@ -1,5 +1,7 @@
-import os, sys, discord, json, time
+import os, sys, discord, json, time, asyncio, re
 from discord.ext import commands
+from discord.ext.commands import MissingPermissions
+from contextlib import redirect_stdout
 from pathlib import Path
 
 def restart_bot():
@@ -23,6 +25,20 @@ class tools(commands.Cog):
                                                                                                     Patientez quelques secondes.. """, color=0xF1D50E)
         await ctx.send(embed=embedDeco)
         restart_bot()
+
+    @commands.command(name="load")
+    @commands.has_any_role(1092392902442893352)
+    async def load(self, ctx, extension):
+        """Permet de charger les modules"""
+        bot.load_extension(f'cogs.{extension}')
+        print('Cog chargés')
+
+    @commands.command(aliases=['purge'])                                 
+    @commands.has_any_role(1092392902442893352)
+    async def clear(self, ctx, amount=0):
+        """Permet de nettoyer un salon <cmd number> """
+        await ctx.channel.purge(limit= amount+1)
+        await ctx.send(f"Ce salon a été nettoyé de {amount} messages")
 
 
 async def setup(bot):
