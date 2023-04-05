@@ -44,7 +44,7 @@ async def on_ready():
             await channel.send(embed=embedLoad)
     # members = 0
     # for guild in bot.guilds:
-    #     members += guild.member_count - 1
+    #     members += guild.member_count - 3
     await bot.change_presence(activity=discord.Streaming(name="Dhoney", url="https://twitch.tv/idhoney"))
 
 
@@ -66,6 +66,14 @@ async def on_voice_state_update(member, before, after):
                 await channel2.delete()
                 print(f"Le channel de {member.display_name} a été supprimé ")
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send("Something went wrong ¯\_(ツ)_/¯")
+        print("{Fore.RED}command didn't work.")
+    if isinstance(error, commands.BadArgument):
+        await ctx.send("Something went wrong ¯\_(ツ)_/¯")
+        print("{Fore.RED}command didn't work.")
 
 # =========================================================
 # ================== BOT MAIN COMMANDS ====================
