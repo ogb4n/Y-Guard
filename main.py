@@ -40,8 +40,8 @@ async def on_ready():
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
-            print("les commandes ont été chargées")
-            await channel.send(embed=embedLoad)
+            print(f"les commandes {filename[:-3]} ont été chargées")
+    await channel.send(embed=embedLoad)
     # members = 0
     # for guild in bot.guilds:
     #     members += guild.member_count - 3
@@ -66,14 +66,6 @@ async def on_voice_state_update(member, before, after):
                 await channel2.delete()
                 print(f"Le channel de {member.display_name} a été supprimé ")
 
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Something went wrong ¯\_(ツ)_/¯")
-        print("{Fore.RED}command didn't work.")
-    if isinstance(error, commands.BadArgument):
-        await ctx.send("Something went wrong ¯\_(ツ)_/¯")
-        print("{Fore.RED}command didn't work.")
 
 # =========================================================
 # ================== BOT MAIN COMMANDS ====================
