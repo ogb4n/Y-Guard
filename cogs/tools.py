@@ -52,10 +52,10 @@ class tools(commands.Cog):
             text="cliques sur le bouton pour avoir accès au serveur et files prendre tes rôles !",
             icon_url="https://cdn3.emoji.gg/emojis/5704-verify.png")
 
-        buttonSign = discord.ui.Button(label="Accepter les règles",emoji="<:verify:1007821405682925588>", style=discord.ButtonStyle.green)
+        verifButton = discord.ui.Button(label="Accepter les règles",emoji="<:verify:1007821405682925588>", style=discord.ButtonStyle.green)
 
 
-        async def buttonSign_callback(interaction):
+        async def verifButton_callback(interaction):
 
             guild = ctx.guild
             Membre = discord.utils.get(guild.roles, id=1092392222646882404)
@@ -67,10 +67,10 @@ class tools(commands.Cog):
                 await interaction.response.send_message(f"Vous avez déjà le rôle {Membermention}.", ephemeral = True)
 
 
-        buttonSign.callback = buttonSign_callback
+        verifButton.callback = verifButton_callback
 
         view = discord.ui.View(timeout=None)
-        view.add_item(item=buttonSign)
+        view.add_item(item=verifButton)
         await ctx.send(embed = embedRegles3,view = view)
 
 async def setup(bot):
