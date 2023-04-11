@@ -71,12 +71,12 @@ async def on_voice_state_update(member, before, after):
 # ================== BOT MAIN COMMANDS ====================
 # =========================================================
 
-    @commands.command(name="load")
-    @commands.has_any_role(1092392902442893352)
-    async def load(self, ctx, extension):
-        """Permet de charger les modules"""
-        bot.load_extension(f'cogs.{extension}')
-        logger.addInfo('Les cogs on été chargés')
+@commands.command(name="load")
+@commands.has_any_role(1092392902442893352)
+async def load(self, ctx, extension):
+    """Permet de charger les modules"""
+    bot.load_extension(f'cogs.{extension}')
+    logger.addInfo('Les cogs on été chargés')
 
 
 
