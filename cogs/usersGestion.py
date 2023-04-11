@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord.ext.commands import MissingPermissions
 from contextlib import redirect_stdout
 from pathlib import Path
+from logger import *
 
 dev = 1092392902442893352
 admin = 1092389025261826140
@@ -37,16 +38,15 @@ class usersGestion(commands.Cog):
     @commands.has_any_role(dev, admin)
     async def kick(self, ctx, member: discord.Member = None, *, reason=None):
         """Renvoie un utilisateur à la maison <cmd user>"""
-        # if member.dm_channel == None:
-        #     await member.create_dm()
-        # await member.dm_channel.send(content=f"Vous avez été expulsé du serveur {ctx.guild} pour {reason}")
 
         if member is not None:
             await ctx.guild.kick(member, reason=reason)
             if member != ctx.guild.members:
                 await ctx.send(f"{member} has been kicked from the server")
+                logger.addWarning((f"{member.id} has been kicked from the server pour la raison {reason}"))
         else:
             await ctx.send("Merci de définir un utilisateur à renvoyer chez lui.")
+            logger.addWarning(f"{ctx.author.display_name} a essayé de kick : personne")
 
     @commands.command()
     @commands.has_any_role(dev, admin)
@@ -56,13 +56,12 @@ class usersGestion(commands.Cog):
         playerRole = discord.utils.get(ctx.guild.roles, name="Player 🗺️")
         await member.add_roles(mutedRole)
         await member.remove_roles(playerRole)
-        await member.edit(mute=True)
-        await ctx.send(f"L'utilisateur <@{member.id}> à été rendu muet pendant {time}s" if time else f"Muted <@{member.id}>")
+        await ctx.send(f"{ctx.author.display_name} a rendu muet <@{member.id}> pendant {time}s" if time else f"Muted <@{member.id}>")
+        logger.addWarning(f"{ctx.author.display_name} a rendu muet <@{member.id}> pendant {time}s" if time else f"Muted <@{member.id}>")
         if time:
             await asyncio.sleep(time)
             await member.remove_roles(mutedRole)
             await member.add_roles(playerRole)
-            await member.edit(mute=False)
             await ctx.send(f"L'utilisateur <@{member.id}> peut à nouveau parler" if time else f"Muted <@{member.id}>")
 
     @commands.command()
@@ -74,7 +73,8 @@ class usersGestion(commands.Cog):
         await member.remove_roles(mutedRole)
         await member.add_roles(playerRole)
         await member.edit(mute=False)
-        await ctx.send({member}, "à été démute")
+        await ctx.send(f"{member} à été démute par {ctx.author.display_name}")
+        logger.addWarning(f"{member} à été démute par {ctx.author.display_name}")
 
 async def setup(bot):
     await bot.add_cog(usersGestion(bot))

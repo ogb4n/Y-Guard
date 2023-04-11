@@ -1,11 +1,22 @@
 import os, sys, discord, json, time, asyncio, re
+from logger import *
 from discord.ext import commands
 from discord.ext.commands import MissingPermissions
 from contextlib import redirect_stdout
 from pathlib import Path
 
+
 def restart_bot():
     os.execv(sys.executable, ['python'] + sys.argv)
+
+def getArgs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--debug", help="Enable debug mode", action="store_true")
+    args = parser.parse_args()
+    return args
+
+args = getArgs()
+logger = Logger("logs.log", args.debug)
 
 dev = 1092392902442893352
 admin = 1092389025261826140
@@ -22,6 +33,7 @@ class tools(commands.Cog):
     async def date(self, ctx):
         """Affiche date et heure locale <cmd>"""
         await ctx.send(time.ctime())
+        logger.addInfo(f"<@{ctx.author.id}> a demandé l'heure")
 
     @commands.command(aliases=['reboot'])
     @commands.has_any_role(dev, admin,)
@@ -30,6 +42,7 @@ class tools(commands.Cog):
         embedDeco=discord.Embed(title="⚗️ Y-Guard Status.. 🛠️ ", description="""Y-Guard redémarre...
                                                                                                     Patientez quelques secondes.. """, color=0xF1D50E)
         await ctx.send(embed=embedDeco)
+        logger.addWarning(f"{ctx.author.display_name} à demandé au bot de redémarrer")
         restart_bot()
 
     @commands.command(aliases=['purge'])                                 
@@ -37,7 +50,8 @@ class tools(commands.Cog):
     async def clear(self, ctx, amount=0):
         """Permet de nettoyer un salon <cmd number> """
         await ctx.channel.purge(limit= amount+1)
-        await ctx.send(f"Ce salon a été nettoyé de {amount} messages")
+        await ctx.send(f"<@{ctx.author.id}> a nettoyé le salon de {amount} messages")
+        logger.addInfo(f"<{ctx.author.id}> à nettoyé le channel <{ctx.channel.id}> | {ctx.channel.name} de : {amount} messages")
 
     
     @commands.command()
@@ -56,7 +70,6 @@ class tools(commands.Cog):
 
 
         async def verifButton_callback(interaction):
-
             guild = ctx.guild
             Membre = discord.utils.get(guild.roles, id=1092392222646882404)
             Membermention = '<@&1092392222646882404>'
@@ -65,10 +78,7 @@ class tools(commands.Cog):
                 await interaction.response.send_message(f"Vous avez obtenu le rôle {Membermention}. Bienvenue sur le serveur ! ✅", ephemeral = True)
             else:
                 await interaction.response.send_message(f"Vous avez déjà le rôle {Membermention}.", ephemeral = True)
-
-
         verifButton.callback = verifButton_callback
-
         view = discord.ui.View(timeout=None)
         view.add_item(item=verifButton)
         await ctx.send(embed = embedRegles3,view = view)
