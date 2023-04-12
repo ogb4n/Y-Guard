@@ -5,10 +5,6 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from logger import *
 
-with open('config.json') as file:
-    data = json.load(file)
-    roles = data['roles']
-
 time_regex = re.compile("(?:(\d{1,5})(h|s|m|d))+?")
 time_dict = {"h":3600, "s":1, "m":60, "d":86400}
 
@@ -32,6 +28,14 @@ class usersGestion(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    with open('config.json') as file:
+        data = json.load(file)
+        roles = data['roles']
+
+# =========================================================
+# ================== USER MGMT COMMANDS ===================
+# =========================================================
+
     @commands.command()
     @commands.has_any_role(roles['Dev'], roles['777'])
     async def kick(self, ctx, member: discord.Member = None, *, reason=None):
@@ -45,6 +49,24 @@ class usersGestion(commands.Cog):
         else:
             await ctx.send("Merci de définir un utilisateur à renvoyer chez lui.")
             logger.addWarning(f"{ctx.author.display_name} a essayé de kick : personne")
+
+    @commands.command()
+    @commands.has_any_role(roles['Dev'], roles['777'])
+    async def ban(self, ctx, member: discord.Member = None, *, reason=None):
+        """Banni un utilisateur du serveur <cmd user>"""
+        # if member.dm_channel == None:
+        #     await member.create_dm()
+        # await member.dm_channel.send(
+        #     content=f"Vous avez été banni du serveur {ctx.guild} pour {reason}")
+
+        if member is not None:
+            await ctx.guild.ban(member, reason=reason)
+        else:
+            await ctx.send("Merci de définir un utilisateur à renvoyer chez lui.")
+
+# =========================================================
+# ================== BOT MUTE COMMANDS ====================
+# =========================================================
 
     @commands.command()
     @commands.has_any_role(roles['Dev'], roles['777'])

@@ -28,11 +28,9 @@ class tools(commands.Cog):
         data = json.load(file)
         roles = data['roles']
 
-    @commands.command(brief="Affiche la date et l'heure")
-    async def date(self, ctx):
-        """Affiche date et heure locale <cmd>"""
-        await ctx.send(time.ctime())
-        logger.addInfo(f"<@{ctx.author.id}> a demandé l'heure")
+# =========================================================
+# ============== DISCORD INTERACTIONS TOOLS ===============
+# =========================================================
 
     @commands.command(aliases=['reboot'])
     @commands.has_any_role(roles['Dev'], roles['777'])
@@ -43,6 +41,10 @@ class tools(commands.Cog):
         await ctx.send(embed=embedDeco)
         logger.addWarning(f"{ctx.author.display_name} à demandé au bot de redémarrer")
         restart_bot()
+
+# =========================================================
+# ================= CHANNEL FORMATTING ====================
+# =========================================================
 
     @commands.command(aliases=['purge'])                                 
     @commands.has_any_role(roles['Dev'], roles['777'])
@@ -57,7 +59,6 @@ class tools(commands.Cog):
     @commands.has_any_role(roles['Dev'], roles['777'])
     @commands.has_permissions(manage_roles=True)
     async def verifmessage(self, ctx):
-
         embedRegles3 = discord.Embed(
             title="J'ai lu les règles et suis prêt à rejoindre le serveur",
             color=6340196)

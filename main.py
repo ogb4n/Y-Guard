@@ -1,5 +1,5 @@
-# made by msfdhoney(ogb4n) & eltitch
-# 2022 | for private use only
+# made by reapex
+# 2023
 
 from unicodedata import category
 from discord.ext import commands, tasks
@@ -73,17 +73,8 @@ async def on_voice_state_update(member, before, after):
 
 
 # =========================================================
-# ================== BOT MAIN COMMANDS ====================
+# ================== BOT MAIN =============================
 # =========================================================
-
-@commands.command(name="load")
-@commands.has_any_role(1092392902442893352)
-async def load(self, ctx, extension):
-    """Permet de charger les modules"""
-    bot.load_extension(f'cogs.{extension}')
-    logger.addInfo('Les cogs on été chargés')
-
-
 
 if __name__ == '__main__':
     args = getArgs()
