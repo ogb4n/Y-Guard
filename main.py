@@ -30,17 +30,22 @@ bot = commands.Bot(command_prefix= '.', intents=intents)
 
 @bot.event
 async def on_ready():
-    logger.addInfo("The bot is ready")
-    channel = bot.get_channel(int(1092393670772265010))
-    embedCo= discord.Embed(title="⚗️ Y-Guard est connecté  ✅ ", description="Y-Guard est prêt à bosser !", color=0x49FF37)
-    embedLoad= discord.Embed(title="⚗️ Y-Guard Commands  ✅ ", description="Y-Guard Loaded commands !", color=0x79b8ff)
-
-    await channel.send(embed=embedCo)
+    logger.addInfo("Le bot est prêt")
 
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
             await bot.load_extension(f'cogs.{filename[:-3]}')
             logger.addInfo(f"les commandes {filename[:-3]} ont été chargées")
+    
+    channel = bot.get_channel(int(1092393670772265010))
+    embedCo= discord.Embed(title="⚗️ Y-Guard est connecté  ✅ ", description="Y-Guard est prêt à bosser !", color=0x49FF37)
+    embedLoad= discord.Embed(title="⚗️ Y-Guard Commands  ✅ ", description="Y-Guard Loaded commands !", color=0x79b8ff)
+
+    with open('config.json') as file:
+        data = json.load(file)
+        roles = data['roles']
+
+    await channel.send(embed=embedCo)
     await channel.send(embed=embedLoad)
     # members = 0
     # for guild in bot.guilds:

@@ -5,10 +5,9 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from logger import *
 
-dev = 1092392902442893352
-admin = 1092389025261826140
-muted = 1092586422453682298
-player = 1092392222646882404
+with open('config.json') as file:
+    data = json.load(file)
+    roles = data['roles']
 
 time_regex = re.compile("(?:(\d{1,5})(h|s|m|d))+?")
 time_dict = {"h":3600, "s":1, "m":60, "d":86400}
@@ -34,8 +33,7 @@ class usersGestion(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.has_permissions(kick_members=True)
-    @commands.has_any_role(dev, admin)
+    @commands.has_any_role(roles['Dev'], roles['777'])
     async def kick(self, ctx, member: discord.Member = None, *, reason=None):
         """Renvoie un utilisateur à la maison <cmd user>"""
 
@@ -49,7 +47,7 @@ class usersGestion(commands.Cog):
             logger.addWarning(f"{ctx.author.display_name} a essayé de kick : personne")
 
     @commands.command()
-    @commands.has_any_role(dev, admin)
+    @commands.has_any_role(roles['Dev'], roles['777'])
     async def mute(self, ctx, member: discord.Member, *, time:TimeConverter = None, reason= None,):
         """Rend muet un utilisateur <cmd user>"""
         mutedRole = discord.utils.get(ctx.guild.roles, name="muted 🔇")
@@ -65,7 +63,7 @@ class usersGestion(commands.Cog):
             await ctx.send(f"L'utilisateur <@{member.id}> peut à nouveau parler" if time else f"Muted <@{member.id}>")
 
     @commands.command()
-    @commands.has_any_role(dev, admin)
+    @commands.has_any_role(roles['Dev'], roles['777'])
     async def unmute(self, ctx, member: discord.Member):
         """Permet de démute un utilisateur <cmd user>"""
         mutedRole = discord.utils.get(ctx.guild.roles, name="muted 🔇")
