@@ -1,7 +1,6 @@
 # made by reapex
 # 2023
 
-from unicodedata import category
 from discord.ext import commands, tasks
 from discord.utils import get
 from discord.ui import Button, View

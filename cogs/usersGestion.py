@@ -61,8 +61,11 @@ class usersGestion(commands.Cog):
 
         if member is not None:
             await ctx.guild.ban(member, reason=reason)
+            await ctx.send(f"{member} has been banned")
+            logger.addWarning((f"{member.id} has been banned from the server pour la raison {reason}"))
         else:
             await ctx.send("Merci de définir un utilisateur à renvoyer chez lui.")
+            logger.addWarning(f"{ctx.author.display_name} a essayé de bannir : personne")
 
 # =========================================================
 # ================== BOT MUTE COMMANDS ====================
