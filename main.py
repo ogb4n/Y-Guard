@@ -9,6 +9,15 @@ from dotenv import load_dotenv
 from logger import *
 import os, sys, discord, json, dotenv, datetime, asyncio, argparse
 
+# =========================================================
+# ================== DATABASE CONNEXION ===================
+# =========================================================
+
+import sqlite3
+db = sqlite3.connect("db.sqlite")
+cur = db.cursor()
+
+
 def getArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--debug", help="Enable debug mode", action="store_true")
@@ -23,6 +32,7 @@ load_dotenv()
 bot = commands.Bot(command_prefix= '.', intents=intents)
 @bot.remove_command('help')
 
+
 # =========================================================
 # ===================== BOT BEHAVIOUR =====================
 # =========================================================
@@ -30,6 +40,20 @@ bot = commands.Bot(command_prefix= '.', intents=intents)
 @bot.event
 async def on_ready():
     logger.addInfo("Le bot est prêt")
+
+    guild = bot.get_guild(1092388848044101694)
+    logger.addInfo(f"le bot est connecté au serveur {guild}")
+
+    for member in guild.members:
+        try:
+            cur.execute(f"SELECT * FROM sanctions WHERE discord_id = {member.id}")
+            result = cur.fetchone()
+            if not result:
+                cur.execute(f"INSERT INTO sanctions(discord_id) VALUES ({member.id})")
+        except sqlite3.Error as e:
+            print("Error inserting data into database:", e)
+    db.commit()
+    logger.addInfo("La base de donnée s'est bien chargée")
 
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
@@ -46,9 +70,8 @@ async def on_ready():
 
     await channel.send(embed=embedCo)
     await channel.send(embed=embedLoad)
-    # members = 0
-    # for guild in bot.guilds:
-    #     members += guild.member_count - 3
+
+
     await bot.change_presence(activity=discord.Streaming(name="Dhoney", url="https://twitch.tv/idhoney"))
 
 

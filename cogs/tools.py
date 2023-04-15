@@ -5,6 +5,13 @@ from discord.ext.commands import MissingPermissions
 from contextlib import redirect_stdout
 from pathlib import Path
 
+# =========================================================
+# ================== DATABASE CONNEXION ===================
+# =========================================================
+
+import sqlite3
+db = sqlite3.connect("db.sqlite")
+cur = db.cursor()
 
 def restart_bot():
     os.execv(sys.executable, ['python'] + sys.argv)
@@ -24,7 +31,7 @@ class tools(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    with open('config.json') as file:
+    with open("config.json") as file:
         data = json.load(file)
         roles = data['roles']
 
@@ -36,11 +43,15 @@ class tools(commands.Cog):
     @commands.has_any_role(roles['Dev'], roles['777'])
     async def restart (self, ctx):
         """Redémarre le bot"""
-        embedDeco=discord.Embed(title="⚗️ Y-Guard Status.. 🛠️ ", description="""Y-Guard redémarre...
+        try:
+            embedDeco=discord.Embed(title="⚗️ Y-Guard Status.. 🛠️ ", description="""Y-Guard redémarre...
                                                                                                     Patientez quelques secondes.. """, color=0xF1D50E)
-        await ctx.send(embed=embedDeco)
-        logger.addWarning(f"{ctx.author.display_name} à demandé au bot de redémarrer")
-        restart_bot()
+            await ctx.send(embed=embedDeco)
+            logger.addWarning(f"{ctx.author.display_name} à demandé au bot de redémarrer")
+            restart_bot()
+        except: 
+            logger.addError(f"{ctx.author.display_name} n'a pas pu utiliser la commande restart / reboot")
+            await ctx.send("Vous n'avez pas la permission d'éxécuter cette commande")
 
 # =========================================================
 # ================= CHANNEL FORMATTING ====================
@@ -70,13 +81,17 @@ class tools(commands.Cog):
 
         async def verifButton_callback(interaction):
             guild = ctx.guild
-            Membre = discord.utils.get(guild.roles, id=roles['Player'])
-            Membermention = f"<@&{roles['Player']}>"
+            Membre_id = cur.execute("SELECT role_id FROM roles WHERE role_name = 'Player'").fetchone()[0]
+            Membre_id = int(Membre_id)
+            Membre = guild.get_role(Membre_id)
+            Membermention = f"<@&{Membre_id}>"
             if Membre not in interaction.user.roles:
                 await interaction.user.add_roles(Membre)
                 await interaction.response.send_message(f"Vous avez obtenu le rôle {Membermention}. Bienvenue sur le serveur ! ✅", ephemeral = True)
             else:
                 await interaction.response.send_message(f"Vous avez déjà le rôle {Membermention}.", ephemeral = True)
+
+                
         verifButton.callback = verifButton_callback
         view = discord.ui.View(timeout=None)
         view.add_item(item=verifButton)

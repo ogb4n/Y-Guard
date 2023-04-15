@@ -1,9 +1,25 @@
+# =========================================================
+# ================== FILE REQUIREMENTS ====================
+# =========================================================
+
 import os, sys, discord, json, time, asyncio, re
 from discord.ext import commands
 from discord.ext.commands import MissingPermissions
 from contextlib import redirect_stdout
 from pathlib import Path
 from logger import *
+
+# =========================================================
+# ================== DATABASE CONNEXION ===================
+# =========================================================
+
+import sqlite3
+db = sqlite3.connect("db.sqlite")
+cur = db.cursor()
+
+# =========================================================
+# =============== SOME USEFULL DECLARATIONS ===============
+# =========================================================
 
 time_regex = re.compile("(?:(\d{1,5})(h|s|m|d))+?")
 time_dict = {"h":3600, "s":1, "m":60, "d":86400}
@@ -22,6 +38,10 @@ class TimeConverter(commands.Converter):
                 raise commands.BadArgument("{} is not a number!".format(v))
         return time
 
+# =========================================================
+# ================== CLASS FOR COMMANDS ===================
+# =========================================================
+
 class usersGestion(commands.Cog):
     """Outils et fontionnalités"""
 
@@ -32,20 +52,20 @@ class usersGestion(commands.Cog):
         data = json.load(file)
         roles = data['roles']
 
-# =========================================================
-# ================== USER MGMT COMMANDS ===================
-# =========================================================
+# ================== USER MGMT COMMANDS ====================
 
     @commands.command()
     @commands.has_any_role(roles['Dev'], roles['777'])
     async def kick(self, ctx, member: discord.Member = None, *, reason=None):
         """Renvoie un utilisateur à la maison <cmd user>"""
-
+    
         if member is not None:
             await ctx.guild.kick(member, reason=reason)
             if member != ctx.guild.members:
                 await ctx.send(f"{member} has been kicked from the server")
                 logger.addWarning((f"{member.id} has been kicked from the server pour la raison {reason}"))
+                cur.execute(f"UPDATE sanctions SET kicks = (kicks + 1) WHERE discord_id = ?",(str(member.id),))
+                db.commit()
         else:
             await ctx.send("Merci de définir un utilisateur à renvoyer chez lui.")
             logger.addWarning(f"{ctx.author.display_name} a essayé de kick : personne")
@@ -63,13 +83,13 @@ class usersGestion(commands.Cog):
             await ctx.guild.ban(member, reason=reason)
             await ctx.send(f"{member} has been banned")
             logger.addWarning((f"{member.id} has been banned from the server pour la raison {reason}"))
+            cur.execute(f"UPDATE sanctions SET bans = (bans + 1) WHERE discord_id = ?",(str(member.id),))
+            db.commit()
         else:
             await ctx.send("Merci de définir un utilisateur à renvoyer chez lui.")
             logger.addWarning(f"{ctx.author.display_name} a essayé de bannir : personne")
 
-# =========================================================
-# ================== BOT MUTE COMMANDS ====================
-# =========================================================
+# ================== USER MUTE COMMANDS ====================
 
     @commands.command()
     @commands.has_any_role(roles['Dev'], roles['777'])
@@ -81,6 +101,8 @@ class usersGestion(commands.Cog):
         await member.remove_roles(playerRole)
         await ctx.send(f"{ctx.author.display_name} a rendu muet <@{member.id}> pendant {time}s" if time else f"Muted <@{member.id}>")
         logger.addWarning(f"{ctx.author.display_name} a rendu muet <@{member.id}> pendant {time}s" if time else f"Muted <@{member.id}>")
+        cur.execute(f"UPDATE sanctions SET mutes = (mutes + 1) WHERE discord_id = ?",(str(member.id),))
+        db.commit()
         if time:
             await asyncio.sleep(time)
             await member.remove_roles(mutedRole)
