@@ -27,9 +27,15 @@ def getArgs():
 intents = discord.Intents.all()
 intents.members = True
 intents.message_content = True
+
+with open('config.json') as file:
+    data = json.load(file)
+    roles = data['roles']
+
 load_dotenv()
 
 bot = commands.Bot(command_prefix= '.', intents=intents)
+guild = bot.get_guild(1092388848044101694)
 @bot.remove_command('help')
 
 
@@ -37,11 +43,25 @@ bot = commands.Bot(command_prefix= '.', intents=intents)
 # ===================== BOT BEHAVIOUR =====================
 # =========================================================
 
+@tasks.loop(hours=1)
+async def warns_check():
+    cur.execute(f"SELECT discord_id FROM SANCTIONS WHERE warns >= 3")
+    rows = cur.fetchall()
+
+    for row in rows:
+        discord_id = row[1]
+        user = guild.get_member(discord_id)
+        await user.add_roles(roles['blacklisted'])
+    logger.addInfo('Le check à bien été exécuté et les utilisateurs concernés ont été blacklistés')
+    cur.execute("UPDATE sanctions SET warns = 0 WHERE warns >= 3")
+    db.commit()
+    logger.addInfo('La liste des avertissements à été actualisée')
+
 @bot.event
 async def on_ready():
     logger.addInfo("Le bot est prêt")
-
-    guild = bot.get_guild(1092388848044101694)
+    warns_check.start()
+    
     logger.addInfo(f"le bot est connecté au serveur {guild}")
 
     for member in guild.members:

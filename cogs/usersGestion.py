@@ -54,6 +54,14 @@ class usersGestion(commands.Cog):
 
 # ================== USER MGMT COMMANDS ====================
 
+   # @commands.command()
+   # @commands.has_any_role(roles['Staff'], roles['Dev'], roles['777'])
+   # async def checkup(self, ctx):
+   #     """Vérifie le nombre de sanctions et applique un blacklist en fonction"""
+   #     cur.execute(f"SELECT discord_id FROM SANCTIONS WHERE warns >= 3")
+   #     db.commit()
+
+
     @commands.command()
     @commands.has_any_role(roles['Dev'], roles['777'])
     async def kick(self, ctx, member: discord.Member = None, *, reason=None):
